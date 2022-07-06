@@ -2,7 +2,7 @@
 /shelf/
 /workspace.xml
 # Datasource local storage ignored files
-/../../../../../:\Tài liệu học tập\[VNPAY]\test_VNPAY\.idea/dataSources/
+/../../../../../../:\Users\hoang\IdeaProjects\Back-end\.idea/dataSources/
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
