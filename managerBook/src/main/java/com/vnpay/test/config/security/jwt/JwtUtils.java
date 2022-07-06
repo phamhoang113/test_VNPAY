@@ -1,55 +1,38 @@
 package com.vnpay.test.config.security.jwt;
 
-
-import com.vnpay.test.service.UserDetailImpl;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import java.util.Date;
 
-
+import com.vnpay.test.service.UserDetailImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+import io.jsonwebtoken.*;
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${jwt.app.jwtSecret}")
+    @Value("${bezkoder.app.jwtSecret}")
     private String jwtSecret;
 
-    @Value("${jwt.app.jwtExpirationMs}")
+    @Value("${bezkoder.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    public String generateJwtToken(UserDetailImpl userDetails) {
+    public String generateJwtToken(Authentication authentication) {
+
+        UserDetailImpl userPrincipal = (UserDetailImpl) authentication.getPrincipal();
+
         return Jwts.builder()
-                .setSubject((userDetails.getUsername()))
+                .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
-                .setExpiration(generateExpirationDate())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
     }
 
-    public Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + jwtExpirationMs);
-    }
-
-    public Claims getClaimsFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-    }
-
-    private boolean isTokenExpired(Claims claims) {
-        return claims.getExpiration().after(new Date());
-    }
-
     public String getUserNameFromJwtToken(String token) {
-        Claims claims = getClaimsFromJwtToken(token);
-        if (claims != null && isTokenExpired(claims)) {
-            return claims.getSubject();
-        }
-        return null;
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
     public boolean validateJwtToken(String authToken) {
@@ -57,10 +40,9 @@ public class JwtUtils {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;
         } catch (Exception e) {
-            logger.error("Invalid JWT signature: {}", e.getMessage());
+            logger.error("Error JWT Token: {}", e.getMessage());
         }
+
         return false;
     }
 }
-
-
