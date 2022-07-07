@@ -39,7 +39,6 @@ public class User {
   @Size(max = 100)
   private String address;
 
-  @NotEmpty
   @Column(columnDefinition = "integer default 0")
   private int score;
 

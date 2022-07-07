@@ -21,6 +21,10 @@ public class Book {
     @Size(max = 100)
     private String name;
 
+    @NotBlank
+    @Size(max = 256)
+    private String image;
+
     @Size(max = 200)
     private String description;
 
@@ -31,13 +35,14 @@ public class Book {
     @NotNull
     private Date publishedDate;
 
-    @NotEmpty
     @Column(columnDefinition = "double default 0")
     private double price;
 
     @NotNull
     @Column(columnDefinition = "integer default 0")
     private int quantity;
+
+    private double saleOff;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(  name = "book_types",
@@ -47,11 +52,11 @@ public class Book {
 
     public Book(){}
 
-    public Book(Long id, String name, String description, String author, Date publishedDate, double price, int quantity, Set<BookGroup> bookGroups) {
-        this.id = id;
+    public Book(String name,String image, String description, String author, Date publishedDate, double price, int quantity, Set<BookGroup> bookGroups) {
         this.name = name;
         this.description = description;
         this.author = author;
+        this.image = image;
         this.publishedDate = publishedDate;
         this.price = price;
         this.quantity = quantity;
@@ -120,5 +125,21 @@ public class Book {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public double getSaleOff() {
+        return saleOff;
+    }
+
+    public void setSaleOff(double saleOff) {
+        this.saleOff = saleOff;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
