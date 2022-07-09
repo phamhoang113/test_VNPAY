@@ -14,7 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "book")
 public class Book {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotBlank

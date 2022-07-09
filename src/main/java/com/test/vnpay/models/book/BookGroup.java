@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "bookgroup")
 public class BookGroup {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @NotBlank
@@ -16,8 +16,7 @@ public class BookGroup {
 
     public BookGroup() { }
 
-    public BookGroup(int id, String name) {
-        this.id = id;
+    public BookGroup(String name) {
         this.name = name;
     }
 

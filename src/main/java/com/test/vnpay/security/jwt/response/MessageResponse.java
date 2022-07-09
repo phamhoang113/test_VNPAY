@@ -1,4 +1,4 @@
-package com.test.vnpay.payload.response;
+package com.test.vnpay.security.jwt.response;
 
 public class MessageResponse {
   private String message;

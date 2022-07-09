@@ -1,4 +1,4 @@
-package com.test.vnpay.payload.request;
+package com.test.vnpay.security.jwt.request;
 
 import javax.validation.constraints.NotBlank;
 

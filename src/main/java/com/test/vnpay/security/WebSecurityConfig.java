@@ -2,7 +2,7 @@ package com.test.vnpay.security;
 
 import com.test.vnpay.security.jwt.AuthEntryPointJwt;
 import com.test.vnpay.security.jwt.AuthTokenFilter;
-import com.test.vnpay.security.services.UserDetailsServiceImpl;
+import com.test.vnpay.services.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,8 +21,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
-    // securedEnabled = true,
-    // jsr250Enabled = true,
+    securedEnabled = true,
+    jsr250Enabled = true,
     prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired
@@ -59,8 +59,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     http.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
       .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-      .authorizeRequests().antMatchers("/api/book/list_books/**","/api/book/list_book/**",
-              "api/orders/list_orders/**", "api/orders/list_order/**","/api/auth/**").permitAll()
+      .authorizeRequests().antMatchers("/api/book/**", "api/order/**", "/api/auth/**",
+            "/api/user/**","/api/group_book/").permitAll()
       .anyRequest().authenticated();
 
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

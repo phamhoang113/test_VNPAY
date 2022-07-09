@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
     })
 public class User {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
   @NotBlank
@@ -49,6 +49,23 @@ public class User {
   private Set<Role> roles = new HashSet<>();
 
   public User() {
+  }
+
+  public User(String username, String email, String password, String address, String sdt, int score) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.address = address;
+    this.sdt = sdt;
+    this.score = score;
+  }
+
+  public User(String username, String email, String password, String address, String sdt) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.address = address;
+    this.sdt = sdt;
   }
 
   public User(String username, String email, String password) {

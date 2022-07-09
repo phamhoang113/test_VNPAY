@@ -1,4 +1,4 @@
-package com.test.vnpay.payload.request;
+package com.test.vnpay.security.jwt.request;
 
 import java.util.Set;
 
@@ -14,11 +14,31 @@ public class RegisterRequest {
   @Email
   private String email;
 
+  private String address;
+
+  private String sdt;
+
   private Set<String> role;
 
   @NotBlank
   @Size(min = 6, max = 40)
   private String password;
+
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
+
+  public String getSdt() {
+    return sdt;
+  }
+
+  public void setSdt(String sdt) {
+    this.sdt = sdt;
+  }
 
   public String getUsername() {
     return username;
