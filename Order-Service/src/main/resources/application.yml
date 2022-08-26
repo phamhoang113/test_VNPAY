@@ -1,0 +1,41 @@
+server:
+  port: 8765
+  error:
+    include-stacktrace: never
+
+eureka:
+  client:
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: order-service
+  main:
+    banner-mode: OFF
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  datasource:
+    name: Auth Database
+    url: jdbc:oracle:thin:@10.22.19.128:1521:DVNHT1
+    username: LEARNORACLE
+    password: LEARNORACLE
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 5
+  jackson:
+    deserialization:
+      FAIL_ON_IGNORED_PROPERTIES: false
+    serialization:
+      INDENT_OUTPUT: false
+      WRITE_DATES_AS_TIMESTAMPS: false
+      WRITE_BIGDECIMAL_AS_PLAIN: true
+
+jwt:
+  jwtSecret: hoangproIT1
+  jwtExpirationMs: 600000
+  refreshExpirationDateInMs: 43200000
