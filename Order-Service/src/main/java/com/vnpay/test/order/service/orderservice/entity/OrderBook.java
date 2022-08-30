@@ -8,7 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
 @Entity
-@Table(name = "order_book")
+@Table(name = "list_book_order")
 @Setter
 @Getter
 @NoArgsConstructor
@@ -18,7 +18,7 @@ public class OrderBook {
     private Long id;
 
     @Column
-    private int bookId;
+    private long bookId;
 
     @NotEmpty
     @Column(columnDefinition = "number(12,0) default 0")

@@ -39,3 +39,10 @@ jwt:
   jwtSecret: hoangproIT1
   jwtExpirationMs: 600000
   refreshExpirationDateInMs: 43200000
+
+app:
+  service:
+    user-service:
+      name: auth-service
+    book-service:
+      name: book-service

@@ -38,7 +38,7 @@ public class BookController {
             return bookService.getListBook(pageNumber, author);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 
@@ -52,7 +52,7 @@ public class BookController {
             return bookService.getBook(bookId);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 
@@ -64,7 +64,7 @@ public class BookController {
             return bookService.insertBook(insertBookRequest);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 
@@ -76,7 +76,7 @@ public class BookController {
             return bookService.updateBook(updateBookRequest);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 
@@ -88,7 +88,7 @@ public class BookController {
             return bookService.deleteBook(bookId);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 

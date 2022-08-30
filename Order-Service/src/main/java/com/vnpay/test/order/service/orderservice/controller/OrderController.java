@@ -1,7 +1,7 @@
 package com.vnpay.test.order.service.orderservice.controller;
 
 import com.vnpay.test.order.service.orderservice.request.InsertOrderRequest;
-import com.vnpay.test.order.service.orderservice.request.UpdateOrderRequest;
+import com.vnpay.test.order.service.orderservice.request.CancelOrderRequest;
 import com.vnpay.test.order.service.orderservice.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,57 +32,59 @@ public class OrderController {
 
     @GetMapping(value = {"/list_order"})
     ResponseEntity<?> listOrders(@RequestHeader HttpHeaders headers,
-                               @RequestParam(name = "page_number") Optional<Integer> pageNumber
-    ) {
+                               @RequestParam(name = "page_number") Optional<Integer> pageNumber) {
         String permission = headers.get("x-user-permission").get(0);
+        String userId = headers.get("x-user-id").get(0);
         logger.info(permission);
         if(permission.contains(PERMISSION.READ.toString())) {
-            return null;
+            return orderService.getListOrder(userId, pageNumber);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 
     @PostMapping(value = {"/insert_order"})
     ResponseEntity<?> insertOrder(@RequestHeader HttpHeaders headers,
-                                  @Valid @RequestBody InsertOrderRequest insertOrderRequest
-                                  ) {
+                                  @Valid @RequestBody InsertOrderRequest insertOrderRequest) {
         String permission = headers.get("x-user-permission").get(0);
+        String userId = headers.get("x-user-id").get(0);
         logger.info(permission);
         if(permission.contains(PERMISSION.INSERT.toString())) {
-            return null;
+            return orderService.insertOrder(userId, insertOrderRequest);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 
-    @PostMapping(value = {"/update_order"})
+    @PostMapping(value = {"/cancel_order"})
     ResponseEntity<?> updateOrder(@RequestHeader HttpHeaders headers,
-                                  @Valid @RequestBody UpdateOrderRequest updateOrderRequest
+                                  @Valid @RequestBody CancelOrderRequest cancelOrderRequest
     ) {
         String permission = headers.get("x-user-permission").get(0);
+        String userId = headers.get("x-user-id").get(0);
         logger.info(permission);
-        if(permission.contains(PERMISSION.INSERT.toString())) {
-            return null;
+        if(permission.contains(PERMISSION.UPDATE.toString())) {
+            return orderService.cancelOrder(userId, cancelOrderRequest);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 
     @PostMapping(value = {"/get_order/id/{order_id}"})
-    ResponseEntity<?> updateOrder(@RequestHeader HttpHeaders headers,
+    ResponseEntity<?> getOrderInfo(@RequestHeader HttpHeaders headers,
                                   @PathVariable(name = "order_id") Optional<Long> orderId
     ) {
         String permission = headers.get("x-user-permission").get(0);
+        String userId = headers.get("x-user-id").get(0);
         logger.info(permission);
-        if(permission.contains(PERMISSION.INSERT.toString())) {
-            return null;
+        if(permission.contains(PERMISSION.READ.toString())) {
+            return orderService.getInfoOrder(userId, orderId);
         }
         else{
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
         }
     }
 

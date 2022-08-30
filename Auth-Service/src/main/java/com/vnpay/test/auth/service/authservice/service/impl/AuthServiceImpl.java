@@ -180,7 +180,9 @@ public class AuthServiceImpl implements AuthService {
             return ResponseEntity.ok(new ValidationResponse(userName, user.getId().toString(),permissions,"200","validation Successful"));
         }
         else{
-            throw new RuntimeException("Token is Expried");
+            Set<String> permissions = new HashSet<>();
+            permissions.add(PERMISSION.READ.toString());
+            return ResponseEntity.ok(new ValidationResponse(null, null, permissions));
         }
     }
 
