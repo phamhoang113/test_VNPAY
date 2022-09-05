@@ -2,6 +2,7 @@ package com.vnpay.test.order.service.orderservice.controller;
 
 import com.vnpay.test.order.service.orderservice.request.InsertOrderRequest;
 import com.vnpay.test.order.service.orderservice.request.CancelOrderRequest;
+import com.vnpay.test.order.service.orderservice.response.BaseResponse;
 import com.vnpay.test.order.service.orderservice.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.Optional;
@@ -37,10 +39,10 @@ public class OrderController {
         String userId = headers.get("x-user-id").get(0);
         logger.info(permission);
         if(permission.contains(PERMISSION.READ.toString())) {
-            return orderService.getListOrder(userId, pageNumber);
+            return orderService.getListOrder(userId, pageNumber, headers);
         }
         else{
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new BaseResponse(HttpStatus.FORBIDDEN.value(), "Don't have permission to access this service!"));
         }
     }
 
@@ -51,10 +53,10 @@ public class OrderController {
         String userId = headers.get("x-user-id").get(0);
         logger.info(permission);
         if(permission.contains(PERMISSION.INSERT.toString())) {
-            return orderService.insertOrder(userId, insertOrderRequest);
+            return orderService.insertOrder(userId, insertOrderRequest, headers);
         }
         else{
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new BaseResponse(HttpStatus.FORBIDDEN.value(), "Don't have permission to access this service!"));
         }
     }
 
@@ -66,10 +68,10 @@ public class OrderController {
         String userId = headers.get("x-user-id").get(0);
         logger.info(permission);
         if(permission.contains(PERMISSION.UPDATE.toString())) {
-            return orderService.cancelOrder(userId, cancelOrderRequest);
+            return orderService.cancelOrder(userId, cancelOrderRequest, headers);
         }
         else{
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new BaseResponse(HttpStatus.FORBIDDEN.value(), "Don't have permission to access this service!"));
         }
     }
 
@@ -81,10 +83,10 @@ public class OrderController {
         String userId = headers.get("x-user-id").get(0);
         logger.info(permission);
         if(permission.contains(PERMISSION.READ.toString())) {
-            return orderService.getInfoOrder(userId, orderId);
+            return orderService.getInfoOrder(userId, orderId, headers);
         }
         else{
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Don't have permission to access resource");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new BaseResponse(HttpStatus.FORBIDDEN.value(), "Don't have permission to access this service!"));
         }
     }
 

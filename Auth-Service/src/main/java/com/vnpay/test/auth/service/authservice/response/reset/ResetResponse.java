@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ResetResponse extends BaseResponse {
     private String token;
-    public ResetResponse(String token, String code, String desc){
+    public ResetResponse(int code, String desc, String token){
         super(code, desc);
         this.token = token;
     }

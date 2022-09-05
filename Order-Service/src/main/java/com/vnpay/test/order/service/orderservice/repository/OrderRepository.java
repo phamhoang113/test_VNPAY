@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     Page findAll(Pageable pageable);
     Page<Order> findByUserId(long userId, Pageable pageable);
+    long countByUserId(long userId);
 }

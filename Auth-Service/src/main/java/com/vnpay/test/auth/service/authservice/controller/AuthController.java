@@ -3,11 +3,13 @@ package com.vnpay.test.auth.service.authservice.controller;
 import com.vnpay.test.auth.service.authservice.request.LoginRequest;
 import com.vnpay.test.auth.service.authservice.request.RegisterRequest;
 import com.vnpay.test.auth.service.authservice.request.ResetRequest;
+import com.vnpay.test.auth.service.authservice.response.BaseResponse;
 import com.vnpay.test.auth.service.authservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -29,7 +31,7 @@ public class AuthController {
         if (loginRequest.isPresent()) {
             return authService.login(loginRequest.get());
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Login fail!!!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse(HttpStatus.BAD_REQUEST.value(), "Login fail!"));
         }
     }
 
@@ -38,7 +40,7 @@ public class AuthController {
         if (registerRequest.isPresent()) {
             return authService.register(registerRequest.get());
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Register fail!!!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse(HttpStatus.BAD_REQUEST.value(), "Register fail!"));
         }
     }
 
@@ -47,7 +49,7 @@ public class AuthController {
         if (resetRequest.isPresent()) {
             return authService.resetRefreshToken(resetRequest.get());
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Reset Access Token fail!!!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse(HttpStatus.BAD_REQUEST.value(), "Reset Token fail!"));
         }
     }
 
@@ -56,7 +58,7 @@ public class AuthController {
         if (refreshToken.isPresent()) {
             return authService.resetAccessToken(refreshToken.get());
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Reset Access Token fail!!!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse(HttpStatus.BAD_REQUEST.value(), "Reset Token fail!"));
         }
     }
 
@@ -70,7 +72,7 @@ public class AuthController {
         if (userId.isPresent()) {
             return authService.signOut(userId.get());
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Reset Access Token fail!!!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse(HttpStatus.BAD_REQUEST.value(), "Logout fail!"));
         }
     }
 }

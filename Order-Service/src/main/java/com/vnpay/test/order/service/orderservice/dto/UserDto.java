@@ -1,5 +1,6 @@
 package com.vnpay.test.order.service.orderservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.Set;
 
@@ -9,18 +10,10 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserDto {
     private Long id;
-    private String username;
+    @JsonProperty("user_name")
+    private String userName;
     private String email;
-    private String password;
     private String sdt;
     private String address;
     private int score;
-    private Set<Role> roles;
-}
-
-@Setter
-@Getter
-class Role{
-    private int id;
-    private String name;
 }

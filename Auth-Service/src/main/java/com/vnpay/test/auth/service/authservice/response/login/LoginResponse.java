@@ -19,4 +19,11 @@ public class LoginResponse extends BaseResponse {
 
     @JsonProperty("role")
     private Set<String> roles;
+
+    public LoginResponse(int code, String desc, String accessToken, String refreshToken, Set<String> roles) {
+        super(code, desc);
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.roles = roles;
+    }
 }

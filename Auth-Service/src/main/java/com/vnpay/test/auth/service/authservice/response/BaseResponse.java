@@ -7,6 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BaseResponse {
-    private String code;
+    private int code;
     private String desc;
 }

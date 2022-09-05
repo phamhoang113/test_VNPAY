@@ -18,7 +18,7 @@ public class ValidationResponse extends BaseResponse {
     @JsonProperty("permission")
     private Set<String> permissions;
 
-    public ValidationResponse(String userName, String userId, Set<String> permissions, String code, String desc){
+    public ValidationResponse(int code, String desc, String userName, String userId, Set<String> permissions){
         super(code, desc);
         this.userName = userName;
         this.userId = userId;

@@ -52,8 +52,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<?> login(LoginRequest loginRequest) {
         try{
+            log.info("request: {}",loginRequest);
             User user = userRepository.findByUsername(loginRequest.getUserName())
-                    .orElseThrow(() -> new RuntimeException("User Not Found with username: " + loginRequest.getUserName()));
+                    .orElseThrow(() -> new Exception("user is not found"));
             log.info(user.getPassword());
             log.info(loginRequest.getPassword());
             if(BCrypt.checkpw(loginRequest.getPassword(),user.getPassword())){
@@ -61,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
                 Set<String> roles = user.getRoles().stream().map(item ->item.getName().toString()).collect(Collectors.toSet());
                 RefreshToken refreshToken = this.createRefreshToken(user.getId());
                 LoginResponse loginResponse = new LoginResponse();
-                loginResponse.setCode("200");
+                loginResponse.setCode(HttpStatus.OK.value());
                 loginResponse.setDesc("Login successfully!");
                 loginResponse.setAccessToken(accessToken);
                 loginResponse.setRefreshToken(refreshToken.getToken());
@@ -69,121 +70,163 @@ public class AuthServiceImpl implements AuthService {
                 return ResponseEntity.ok(loginResponse);
             }
             else{
-                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Login fail! Username or password is incorrect");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new BaseResponse(HttpStatus.BAD_REQUEST.value(),"Username or password error!"));
             }
         }
         catch (Exception e){
             log.error("Login fail: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Login fail! " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new BaseResponse(HttpStatus.BAD_REQUEST.value(),"Login fail!"));
         }
     }
 
     @Override
     public ResponseEntity<?> register(RegisterRequest registerRequest) {
-        if (userRepository.existsByUsername(registerRequest.getUserName())) {
-            return new ResponseEntity<>(new BaseResponse("400","Username existed!!!"), HttpStatus.BAD_REQUEST);
-        }
+        try{
+            log.info("request: {}",registerRequest);
+            if (userRepository.existsByUsername(registerRequest.getUserName())) {
+                return new ResponseEntity<>(new BaseResponse(HttpStatus.BAD_REQUEST.value(), "Username existed!!!"), HttpStatus.BAD_REQUEST);
+            }
 
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            return new ResponseEntity<>(new BaseResponse("400","Email existed!!!"), HttpStatus.BAD_REQUEST);
-        }
+            if (userRepository.existsByEmail(registerRequest.getEmail())) {
+                return new ResponseEntity<>(new BaseResponse(HttpStatus.BAD_REQUEST.value(),"Email existed!!!"), HttpStatus.BAD_REQUEST);
+            }
 
-        User user = new User(registerRequest.getUserName(),
-                registerRequest.getEmail(),
-                BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt(4)),  registerRequest.getPhone(), registerRequest.getAddress());
+            User user = new User(registerRequest.getUserName(),
+                    registerRequest.getEmail(),
+                    BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt(4)),  registerRequest.getPhone(), registerRequest.getAddress());
 
-        Set<String> strRoles = registerRequest.getRoles();
-        Set<Role> roles = new HashSet<>();
+            Set<String> strRoles = registerRequest.getRoles();
+            Set<Role> roles = new HashSet<>();
 
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByName(RoleEnum.ROLE_CUSTOMER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                        if (role.equals("admin") || role.equals("ROLE_ADMIN")) {
-                            Role adminRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                            roles.add(adminRole);
+            if (strRoles == null) {
+                Role userRole = roleRepository.findByName(RoleEnum.ROLE_CUSTOMER)
+                        .orElseThrow(() -> new Exception("Role " + RoleEnum.ROLE_CUSTOMER + "is not found"));
+                roles.add(userRole);
+            } else {
+                strRoles.forEach(role -> {
+                            if (role.equals("admin") || role.equals("ROLE_ADMIN")) {
+                                Role adminRole = null;
+                                try {
+                                    adminRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN)
+                                            .orElseThrow(() -> new Exception("Role " + RoleEnum.ROLE_ADMIN + "is not found"));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                roles.add(adminRole);
+                            }
+                            else if (role.equals("user") || role.equals("ROLE_USER")) {
+                                Role adminRole = null;
+                                try {
+                                    adminRole = roleRepository.findByName(RoleEnum.ROLE_USER)
+                                            .orElseThrow(() -> new Exception("Role " + RoleEnum.ROLE_USER + "is not found"));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                roles.add(adminRole);
+                            }
+                            else {
+                                Role userRole = null;
+                                try {
+                                    userRole = roleRepository.findByName(RoleEnum.ROLE_CUSTOMER)
+                                            .orElseThrow(() -> new Exception("Role " + RoleEnum.ROLE_CUSTOMER + "is not found"));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                roles.add(userRole);
+                            }
                         }
-                        else if (role.equals("user") || role.equals("ROLE_USER")) {
-                            Role adminRole = roleRepository.findByName(RoleEnum.ROLE_USER)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                            roles.add(adminRole);
-                        }
-                        else {
-                            Role userRole = roleRepository.findByName(RoleEnum.ROLE_CUSTOMER)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                            roles.add(userRole);
-                        }
-                    }
-            );
+                );
+            }
+            user.setRoles(roles);
+            userRepository.save(user);
+            log.info("Successfully!");
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK.value(), "Register successful!"));
         }
-        user.setRoles(roles);
-        userRepository.save(user);
-        return ResponseEntity.ok(new BaseResponse("200", "Register successful!"));
+        catch (Exception e){
+            log.error("Register fail!" + e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse(HttpStatus.BAD_REQUEST.value(),"Register fail!"));
+        }
     }
 
     @Override
     public ResponseEntity<?> resetAccessToken(ResetRequest refreshToken) {
-        RefreshToken refreshToken1 = refreshTokenRepository.findByToken(refreshToken.getToken()).orElseThrow(
-                () -> new RuntimeException("Token is not found")
+        try{
+            RefreshToken refreshToken1 = refreshTokenRepository.findByToken(refreshToken.getToken()).orElseThrow(
+                    () -> new Exception("Token is not found")
         );
-        if(refreshToken1.getExpiryDate().compareTo(new Date())<0){
-            throw new RuntimeException("Token is Expiried. Please Login again");
+            if(refreshToken1.getExpiryDate().compareTo(new Date())<0){
+                throw new  Exception("Token is expiried. please Login again");
+            }
+            else{
+                String accessToken = jwtUtils.generateJwtTokenFromUserName(refreshToken1.getUser().getUsername());
+                return ResponseEntity.ok(new ResetResponse(HttpStatus.OK.value(),"Reset access token successfully!", accessToken));
+            }
         }
-        else{
-            String accessToken = jwtUtils.generateJwtTokenFromUserName(refreshToken1.getUser().getUsername());
-            return ResponseEntity.ok(new ResetResponse(accessToken,"200","Reset access token successfully!"));
+        catch(Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new BaseResponse(HttpStatus.BAD_REQUEST.value(),e.getMessage()));
         }
     }
 
     @Override
     public ResponseEntity<?> resetRefreshToken(ResetRequest refreshToken) {
-        RefreshToken refreshToken1 = refreshTokenRepository.findByToken(refreshToken.getToken()).orElseThrow(
-                () -> new RuntimeException("Reset Fail!!!")
-        );
-        refreshTokenRepository.delete(refreshToken1);
-        RefreshToken refreshToken2 = this.createRefreshToken(refreshToken1.getUser().getId());
-        return ResponseEntity.ok(new ResetResponse(refreshToken2.getToken()));
+        try {
+            RefreshToken refreshToken1 = refreshTokenRepository.findByToken(refreshToken.getToken()).orElseThrow(
+                    () -> new Exception("Reset fail!")
+            );
+            refreshTokenRepository.delete(refreshToken1);
+            RefreshToken refreshToken2 = this.createRefreshToken(refreshToken1.getUser().getId());
+            return ResponseEntity.ok(new ResetResponse(HttpStatus.OK.value(),"Successfully!",refreshToken2.getToken()));
+        }
+        catch (Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new BaseResponse(HttpStatus.BAD_REQUEST.value(),e.getMessage()));
+        }
     }
 
     @Override
     public ResponseEntity<?> validateAccessToken(String validateRequest) {
-        if (null==validateRequest||validateRequest.isEmpty()){
-            Set<String> permissions = new HashSet<>();
-            permissions.add(PERMISSION.READ.toString());
-            return ResponseEntity.ok(new ValidationResponse(null, null, permissions));
-        }
-        if(jwtUtils.validateToken(validateRequest)){
-            Set<String> permissions = new HashSet<>();
-            String userName = jwtUtils.getUserNameFromToken(validateRequest);
-            User user = userRepository.findByUsername(userName).orElseThrow(
-                    () -> new RuntimeException("User not found!!!")
-            );
-            for(Role role : user.getRoles()){
-                if(role.getName() == RoleEnum.ROLE_ADMIN){
-                    permissions.add(PERMISSION.READ.toString());
-                    permissions.add(PERMISSION.UPDATE.toString());
-                    permissions.add(PERMISSION.INSERT.toString());
-                    permissions.add(PERMISSION.DELETE.toString());
-                }
-                else if(role.getName() == RoleEnum.ROLE_USER){
-                    permissions.add(PERMISSION.READ.toString());
-                    permissions.add(PERMISSION.UPDATE.toString());
-                    permissions.add(PERMISSION.INSERT.toString());
-                }
-                else{
-                    permissions.add(PERMISSION.READ.toString());
-                }
+        try{
+            if (null==validateRequest||validateRequest.isEmpty()){
+                Set<String> permissions = new HashSet<>();
+                permissions.add(PERMISSION.READ.toString());
+                return ResponseEntity.ok(new ValidationResponse(HttpStatus.BAD_REQUEST.value(), "Fail",null, null, permissions));
             }
-            return ResponseEntity.ok(new ValidationResponse(userName, user.getId().toString(),permissions,"200","validation Successful"));
+            if(jwtUtils.validateToken(validateRequest)){
+                Set<String> permissions = new HashSet<>();
+                String userName = jwtUtils.getUserNameFromToken(validateRequest);
+                User user = userRepository.findByUsername(userName).orElseThrow(
+                        () -> new Exception("User is not found!")
+            );
+                for(Role role : user.getRoles()){
+                    if(role.getName() == RoleEnum.ROLE_ADMIN){
+                        permissions.add(PERMISSION.READ.toString());
+                        permissions.add(PERMISSION.UPDATE.toString());
+                        permissions.add(PERMISSION.INSERT.toString());
+                        permissions.add(PERMISSION.DELETE.toString());
+                    }
+                    else if(role.getName() == RoleEnum.ROLE_USER){
+                        permissions.add(PERMISSION.READ.toString());
+                        permissions.add(PERMISSION.UPDATE.toString());
+                        permissions.add(PERMISSION.INSERT.toString());
+                    }
+                    else{
+                        permissions.add(PERMISSION.READ.toString());
+                    }
+                }
+                return ResponseEntity.ok( new ValidationResponse(HttpStatus.OK.value(), "validation Successful",userName, user.getId().toString(),permissions));
+            }
+            else{
+                Set<String> permissions = new HashSet<>();
+                permissions.add(PERMISSION.READ.toString());
+                return ResponseEntity.ok(new ValidationResponse(HttpStatus.BAD_REQUEST.value(), "Fail",null, null, permissions));
+            }
         }
-        else{
-            Set<String> permissions = new HashSet<>();
-            permissions.add(PERMISSION.READ.toString());
-            return ResponseEntity.ok(new ValidationResponse(null, null, permissions));
+        catch (Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new BaseResponse(HttpStatus.BAD_REQUEST.value(),e.getMessage()));
         }
+
     }
 
     @Override
@@ -195,11 +238,13 @@ public class AuthServiceImpl implements AuthService {
                     () -> new Exception("Log out error!")
             );
             refreshTokenRepository.delete(refresh);
-            return ResponseEntity.ok(new BaseResponse("200", "Log out successfully!"));
+            return ResponseEntity.ok(new BaseResponse(HttpStatus.OK.value(), "Log out successfully!"));
         } catch (Exception e) {
-            return new ResponseEntity<>(new BaseResponse("400","Log out fail!!!"), HttpStatus.BAD_REQUEST);
+            log.error(e.getMessage());
+            return new ResponseEntity<>(new BaseResponse(HttpStatus.OK.value(),"Log out fail!!!"), HttpStatus.BAD_REQUEST);
         }
     }
+
 
     private RefreshToken createRefreshToken(Long userId) {
         RefreshToken refreshToken = new RefreshToken();

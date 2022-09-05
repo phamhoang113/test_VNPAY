@@ -1,13 +1,9 @@
 package com.evnpay.gateway.service.apigateway.filter;
 
 import com.evnpay.gateway.service.apigateway.dto.UserDto;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
@@ -53,6 +49,7 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                     .uri("http://auth-service/api/auth/validate_token?token="+token)
                     .retrieve().bodyToMono(UserDto.class)
                     .map(userDto -> {
+                        logger.info("response:{}",userDto);
                         ServerHttpRequest.Builder request = exchange.getRequest()
                                 .mutate();
                         request.header("x-user-permission", userDto.getPermission().toString());
@@ -63,7 +60,6 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                     .flatMap(chain::filter);
         };
     }
-
 
     @NoArgsConstructor
     public static class Config {
