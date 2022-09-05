@@ -50,10 +50,10 @@ public class Order {
     private long userId;
 
     @NotNull
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "order_books",
-            joinColumns = @JoinColumn(name = "order_book_id"),
-            inverseJoinColumns = @JoinColumn(name = "list_book_order_id"))
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private Set<OrderBook> books = new HashSet<>();
 
     @Column(columnDefinition = "number(19,2) default 0")

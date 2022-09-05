@@ -98,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
                         }
                     }
                     order.setTotal(total);
+                    order.setBooks(orderBookSet);
                     orderRepository.save(order);
                     log.info("successfully!");
                     return ResponseEntity.ok(new BaseResponse(HttpStatus.OK.value(), "Successfully!"));
